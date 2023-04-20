@@ -1,5 +1,24 @@
-package com.polisetti_won;
+/*
+    Tillman Won, Sasanka Polisetti
+    AP CSA
+    Cmdr. Schenk
+    2nd Period
+    27 April 2023
+    Master Project - DB Class and Controller/Container Class for Calendar Sources
+*/
+/*
+    NOTE:
+    This class is the controller for the CalendarFX CalendarView and our MySQL DB. CalendarFX is a
+    framework for JavaFX that provides a useful GUI class for creating our calendar. CalendarFX allows us
+    to add event handlers for the CalendarView that will trigger the CRUD Operations written in this
+    class.
 
+    This class is responsible for connecting to the MySQL database, loading events from the database,
+    and updating the database when calendar events are added, changed, or deleted.
+*/
+
+package com.polisetti_won;
+// JavaFX and CalendarFX
 import com.calendarfx.model.Calendar;
 import com.calendarfx.model.CalendarEvent;
 import com.calendarfx.model.CalendarSource;
@@ -7,29 +26,31 @@ import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
-
+// MySQL
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class CalendarController {
 
     // Fields
     public CalendarView calendarView;
-    public Calendar personal;
-    public Calendar birthdays;
-    public Calendar holidays;
+    private ArrayList<CalendarRecord> calendarRecords;
+    private Calendar personal;
+    private Calendar birthdays;
+    private Calendar holidays;
     private Connection conn;
     private ResultSet rs;
 
     // Contructor
     public CalendarController() {
-        // Init Calendar GUI
+        // Init Calendar GUI from CalendarFX
         this.calendarView = new CalendarView();
-        // Add Extra Calendars
+        // Add Calendars we are tracking
         this.personal = new Calendar("Personal");
         this.birthdays = new Calendar("Birthdays");
         this.holidays = new Calendar("Holidays");
@@ -55,7 +76,6 @@ public class CalendarController {
                         calendarView.setToday(LocalDate.now());
                         calendarView.setTime(LocalTime.now());
                     });
-
                     try {
                         // update every 10 seconds
                         sleep(10000);
@@ -73,15 +93,19 @@ public class CalendarController {
         // Calendar Bindings
         EventHandler<CalendarEvent> onAdd = evt -> addEvent(evt);
         EventHandler<CalendarEvent> onChange = evt -> updateEvent(evt);
+        EventHandler<CalendarEvent> onDelete = evt -> deleteEvent(evt);
         this.personal.addEventHandler(onAdd);
         this.personal.addEventHandler(onChange);
+        this.personal.addEventHandler(onDelete);
         this.birthdays.addEventHandler(onAdd);
         this.birthdays.addEventHandler(onChange);
+        this.birthdays.addEventHandler(onDelete);
         this.holidays.addEventHandler(onAdd);
         this.holidays.addEventHandler(onChange);
+        this.holidays.addEventHandler(onDelete);
 
     }
-
+    // Connect to MySQL database
     public boolean connectDB() {
         try {
             this.conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/calendar", "root", "Testing123!!");
@@ -104,6 +128,11 @@ public class CalendarController {
             System.out.println(newEvent.getTitle());
             System.out.println();
             // Add to DB
+            // Create CalendarRecord object
+            CalendarRecord newRecord = new CalendarRecord(Integer.parseInt(newEvent.getId()), newEvent.getTitle(), newEvent.getCalendar().getName(), newEvent.getInterval().getStartDateTime(), newEvent.getInterval().getEndDateTime(), newEvent.getRecurrenceRule(), newEvent.isFullDay());
+            // Add to ArrayList
+            this.calendarRecords.add(newRecord);
+            // SQL Insertion
             try {
                 // Prepare SQL Statement
                 String sql = "INSERT INTO events (title, calendar, start_datetime, end_datetime, recurrence, full_day) VALUES (?, ?, ?, ?, ?, ?)";
@@ -180,7 +209,7 @@ public class CalendarController {
                     this.holidays.addEntry(newEvent);
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -239,7 +268,8 @@ public class CalendarController {
                 System.out.println("Error Updating Entry Recurrence Rule:");
                 System.out.println(e);
             }
-        } else if (evt.getEventType() == CalendarEvent.ENTRY_CALENDAR_CHANGED) {
+        } else if (evt.getEventType() == CalendarEvent.ENTRY_CALENDAR_CHANGED && evt.getEntry().getCalendar() != null) {
+            System.out.println("Event moved to diff calendar");
             try {
                 String sql = "UPDATE events SET calendar = ? WHERE id = ?";
                 PreparedStatement stmt = this.conn.prepareStatement(sql);
@@ -264,6 +294,23 @@ public class CalendarController {
                 System.out.println("Error Updating Entry Calendar:");
                 System.out.println(e);
             }
+        }
+    }
+
+    // DELETE - DELETE EVENT FROM DB
+    public void deleteEvent(CalendarEvent evt) {
+        if (evt.getEntry().getCalendar() == null) {
+            try {
+                System.out.println("Removing event" + evt.getEntry().getId());
+                String sql = "DELETE from events  WHERE id = ?";
+                PreparedStatement stmt = this.conn.prepareStatement(sql);
+                stmt.setString(1, evt.getEntry().getId());
+                // Execute SQL Statement
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
