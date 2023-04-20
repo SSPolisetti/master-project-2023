@@ -1,5 +1,5 @@
 /*
-    Tillman Won, Sasanka Polisetti
+    Sasanka Polisetti
     AP CSA
     Cmdr. Schenk
     2nd Period

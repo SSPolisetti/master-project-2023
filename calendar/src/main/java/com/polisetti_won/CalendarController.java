@@ -46,7 +46,7 @@ public class CalendarController {
     private Connection conn;
     private ResultSet rs;
 
-    // Contructor
+    // Tillman and Sasanka - Contructor
     public CalendarController() {
         // Init Calendar GUI from CalendarFX
         this.calendarView = new CalendarView();
@@ -105,7 +105,7 @@ public class CalendarController {
         this.holidays.addEventHandler(onDelete);
 
     }
-    // Connect to MySQL database
+    // Tillman - Connect to MySQL database
     public boolean connectDB() {
         try {
             this.conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/calendar", "root", "Testing123!!");
@@ -119,7 +119,7 @@ public class CalendarController {
         return true;
     }
 
-    // CREATE - event was created
+    // Tillman - CREATE - event was created
     public void addEvent(CalendarEvent evt) {
         System.out.println(evt.getEventType());
         if (evt.getEventType() == CalendarEvent.ENTRY_CALENDAR_CHANGED && evt.getEntry().getId().length() > 8) {
@@ -170,13 +170,15 @@ public class CalendarController {
         }
     }
 
-    // READ - Load events from DB into calendar
+    // Tillman - READ - Load events from DB into calendar
     public void loadEvents() {
         // Load Events from DB
         try {
             Statement stmt = this.conn.createStatement();
             rs = stmt.executeQuery("SELECT * from events");
+            // For each event in the DB...
             while(rs.next()) {
+                // If it's a personal event, add it to the personal calendar
                 if (Objects.equals(rs.getString(3), "DEFAULT")) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     LocalDateTime startDate = LocalDateTime.parse(rs.getString(4), formatter);
@@ -187,6 +189,7 @@ public class CalendarController {
                     newEvent.setFullDay((rs.getShort(7) == 1));
                     newEvent.setRecurrenceRule(rs.getString(6));
                     this.personal.addEntry(newEvent);
+                    // If it's a birthday add it to the birthdays calendar
                 } else if (Objects.equals(rs.getString(3), "BIRTHDAYS")) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     LocalDateTime startDate = LocalDateTime.parse(rs.getString(4), formatter);
@@ -195,8 +198,9 @@ public class CalendarController {
                     newEvent.setId(String.valueOf(rs.getInt(1)));
                     newEvent.setInterval(startDate, endDate);
                     newEvent.setFullDay((rs.getShort(7) == 1));
-                    newEvent.setRecurrenceRule(rs.getString(6));
+                    newEvent.setRecurrenceRule("FREQ=YEARLY");
                     this.birthdays.addEntry(newEvent);
+                    // If it's a holiday, add it to the holidays calendar
                 } else if (Objects.equals(rs.getString(3), "HOLIDAYS")) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     LocalDateTime startDate = LocalDateTime.parse(rs.getString(4), formatter);
@@ -214,11 +218,10 @@ public class CalendarController {
         }
     }
 
-    // UPDATE - event details were changed
+    // SASANKA - UPDATE - event details were changed
     public void updateEvent(CalendarEvent evt) {
-        System.out.println(evt.getEventType());
-        System.out.println(evt.getEntry().getId());
-        Entry<String> newEvent = (Entry<String>) evt.getEntry();
+        Entry<String> newEvent = (Entry<String>) evt.getEntry(); // Entry that was changed
+        // If event title was changed, update the changes in the DB
         if (evt.getEventType() == CalendarEvent.ENTRY_TITLE_CHANGED) {
             try {
                 String sql = "UPDATE events SET title = ? WHERE id = ?";
@@ -231,6 +234,7 @@ public class CalendarController {
                 System.out.println("Error Updating Entry Title:");
                 System.out.println(e);
             }
+            // If event start/end datetime was changed, update the changes in the DB
         } else if (evt.getEventType() == CalendarEvent.ENTRY_INTERVAL_CHANGED) {
             try {
                 String sql = "UPDATE events SET start_datetime = ?, end_datetime = ? WHERE id = ?";
@@ -244,6 +248,7 @@ public class CalendarController {
                 System.out.println("Error Updating Entry Interval:");
                 System.out.println(e);
             }
+            // If the event was changed to full day or not, update the changes in the DB
         } else if (evt.getEventType() == CalendarEvent.ENTRY_FULL_DAY_CHANGED) {
             try {
                 String sql = "UPDATE events SET full_day = ? WHERE id = ?";
@@ -256,6 +261,7 @@ public class CalendarController {
                 System.out.println("Error Updating Entry Full Day:");
                 System.out.println(e);
             }
+            // If the reccurence rule was changed, update the changes in the DB
         } else if (evt.getEventType() == CalendarEvent.ENTRY_RECURRENCE_RULE_CHANGED) {
             try {
                 String sql = "UPDATE events SET recurrence = ? WHERE id = ?";
@@ -268,6 +274,7 @@ public class CalendarController {
                 System.out.println("Error Updating Entry Recurrence Rule:");
                 System.out.println(e);
             }
+            // If the event was moved to a different calendar, update the changes in the DB
         } else if (evt.getEventType() == CalendarEvent.ENTRY_CALENDAR_CHANGED && evt.getEntry().getCalendar() != null) {
             System.out.println("Event moved to diff calendar");
             try {
@@ -297,8 +304,9 @@ public class CalendarController {
         }
     }
 
-    // DELETE - DELETE EVENT FROM DB
+    // SASANKA - DELETE - DELETE EVENT FROM DB
     public void deleteEvent(CalendarEvent evt) {
+        // If the event has no calendar, it had to be deleted...
         if (evt.getEntry().getCalendar() == null) {
             try {
                 System.out.println("Removing event" + evt.getEntry().getId());
