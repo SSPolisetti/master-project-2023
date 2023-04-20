@@ -1,1 +1,1 @@
-Calendar/Time-management tracker desktop app using JavaFX and MySQL for APCSA
+Calendar/Time-management tracker desktop app using CalendarFX and MySQL for APCSA
