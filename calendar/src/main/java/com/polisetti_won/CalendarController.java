@@ -213,7 +213,7 @@ public class CalendarController {
                     this.holidays.addEntry(newEvent);
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
