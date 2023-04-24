@@ -129,9 +129,9 @@ public class CalendarController {
             System.out.println();
             // Add to DB
             // Create CalendarRecord object
-            CalendarRecord newRecord = new CalendarRecord(Integer.parseInt(newEvent.getId()), newEvent.getTitle(), newEvent.getCalendar().getName(), newEvent.getInterval().getStartDateTime(), newEvent.getInterval().getEndDateTime(), newEvent.getRecurrenceRule(), newEvent.isFullDay());
+            //CalendarRecord newRecord = new CalendarRecord(Integer.parseInt(newEvent.getId()), newEvent.getTitle(), newEvent.getCalendar().getName(), newEvent.getInterval().getStartDateTime(), newEvent.getInterval().getEndDateTime(), newEvent.getRecurrenceRule(), newEvent.isFullDay());
             // Add to ArrayList
-            this.calendarRecords.add(newRecord);
+            //this.calendarRecords.add(newRecord);
             // SQL Insertion
             try {
                 // Prepare SQL Statement
