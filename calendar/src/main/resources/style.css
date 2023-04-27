@@ -1,0 +1,14 @@
+/*
+    Sasanka Polisetti
+    AP CSA
+    Cmdr. Schenk
+    2nd Period
+    27 April 2023
+    Master Project - CSS Stylesheet for Background Image
+*/
+#myAnchorPane {
+    -fx-background-image: url("background.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}

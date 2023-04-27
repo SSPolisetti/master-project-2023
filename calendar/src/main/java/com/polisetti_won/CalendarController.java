@@ -46,7 +46,7 @@ public class CalendarController {
     private Connection conn;
     private ResultSet rs;
 
-    // Tillman and Sasanka - Contructor
+    // Tillman and Sasanka - Constructor
     public CalendarController() {
         // Init Calendar GUI from CalendarFX
         this.calendarView = new CalendarView();
@@ -108,7 +108,7 @@ public class CalendarController {
     // Tillman - Connect to MySQL database
     public boolean connectDB() {
         try {
-            this.conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/calendar", "root", "Testing123!!");
+            this.conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/calendar", "root", "SQL_sp_532");
             System.out.println("Connected");
             loadEvents();
         }catch(Exception e) {
