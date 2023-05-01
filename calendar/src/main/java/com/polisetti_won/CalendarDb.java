@@ -71,7 +71,7 @@ public class CalendarDb {
         if (!isConnected()) {
             // Try catch for attempting connection
             try {
-                conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/calendar", "root", "SQL_sp_532");
+                conn = DriverManager.getConnection("jdbc:mysql://192.168.0.170:3306/sasanka_tillman", "lightning", "jchs"); //jdbc:mysql://127.0.0.1:3306/calendar, "root", "SQL_sp_532"
                 setConnected(true);
                 loadEvents();
 

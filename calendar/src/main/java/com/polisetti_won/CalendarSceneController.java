@@ -84,8 +84,8 @@ public class CalendarSceneController implements Initializable {
         //calView.setBackground(new Background(new BackgroundImage(new Image("background.png"), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
 
         // Hiding unused controls
-        this.calView.setShowPrintButton(false);
-        this.calView.setShowPageSwitcher(false);
+        //this.calView.setShowPrintButton(false);
+        //this.calView.setShowPageSwitcher(false);
         this.calView.setShowAddCalendarButton(false);
         this.calView.setShowDeveloperConsole(false);
         //this.calView.setShowSearchField(false);
